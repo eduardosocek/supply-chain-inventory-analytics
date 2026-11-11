@@ -1,7 +1,6 @@
 import sqlite3
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 import streamlit as st
 
 # Configuração da página
@@ -14,12 +13,14 @@ st.set_page_config(
 st.title("📦 Supply Chain & Inventory Health Dashboard")
 st.markdown("Visão integrada de saúde de estoque, rastreabilidade de itens e Curva ABC.")
 
-# 1. Carregar dados (Lê os CSVs da pasta data/)
+# 1. Carregar dados via URLs diretas do GitHub (Seguro para Streamlit Cloud e Colab)
 @st.cache_data
 def load_data():
-    products = pd.read_csv("data/products.csv")
-    inventory = pd.read_csv("data/inventory.csv")
-    orders = pd.read_csv("data/orders.csv")
+    base_url = "https://raw.githubusercontent.com/eduardosocek/supply-chain-inventory-analytics/main/data/"
+    
+    products = pd.read_csv(base_url + "products.csv")
+    inventory = pd.read_csv(base_url + "inventory.csv")
+    orders = pd.read_csv(base_url + "orders.csv")
     
     # Criar conexão com SQLite em memória para queries dinâmicas
     conn = sqlite3.connect(":memory:")
@@ -29,7 +30,9 @@ def load_data():
     
     return products, inventory, orders, conn
 
-df_products, df_inventory, df_orders, conn = load_data()
+# Indicador visual de carregamento
+with st.spinner("🔄 Conectando aos dados e construindo o banco SQL..."):
+    df_products, df_inventory, df_orders, conn = load_data()
 
 # Aba 1: Curva ABC & Visão Geral | Aba 2: Rastreio por Item (Drill-down)
 tab1, tab2 = st.tabs(["📊 Visão Geral & Curva ABC", "🔍 Rastreio Individual de Item"])
