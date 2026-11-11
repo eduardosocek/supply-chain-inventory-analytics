@@ -1,0 +1,16 @@
+product_id,product_name,category,unit_cost,reorder_point,safety_stock,unit_price
+PRD-100,Barcode Scanner HD,Office Supplies,53.39,25,8,97.64
+PRD-101,Thermal Label Printer,Logistics Gear,25.72,24,16,41.09
+PRD-102,Stackable Letter Tray,Electronics,99.38,12,19,143.66
+PRD-103,Heavy Duty Shelf,Office Supplies,13.18,46,16,22.37
+PRD-104,Ergonomic Chair,Office Supplies,109.69,16,11,145.0
+PRD-105,Bluetooth Warehouse Headset,Logistics Gear,141.09,30,16,266.6
+PRD-106,Hand Pallet Jack,Electronics,5.11,18,17,8.25
+PRD-107,Packing Tape Dispenser,Electronics,148.87,48,12,234.71
+PRD-108,Digital Scale 50kg,Office Supplies,94.53,27,19,184.21
+PRD-109,Storage Bin Large,Home & Kitchen,93.69,13,7,169.49
+PRD-110,Wireless Router Pro,Office Supplies,6.02,34,18,9.2
+PRD-111,Industrial Stretch Film,Office Supplies,8.34,23,5,14.17
+PRD-112,Safety Gloves Pack,Office Supplies,81.09,18,8,134.98
+PRD-113,Shipping Label Roll,Office Supplies,62.98,35,6,124.25
+PRD-114,Utility Knife Box,Logistics Gear,11.77,11,12,22.26
