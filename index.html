@@ -44,7 +44,7 @@ svg{width:100%;max-width:720px;height:auto}.empty{color:var(--mute);padding:20px
 <aside>
  <label for="src">Fonte dos dados</label>
  <select id="src"><option value="sample">Exemplo (data/sample)</option><option value="dir">Pasta do PC</option><option value="sheets">Google Sheets</option><option value="up">Escolher CSVs</option></select>
- <div id="b_dir" hidden><p class="hint">Escolha a pasta com os CSVs. Nome livre; vários arquivos do mesmo tipo são somados. Só Chrome e Edge. Os dados não saem do seu PC.</p></div>
+ <div id="b_dir" hidden><p class="hint">Escolha a pasta com os CSVs. Nome livre; vários arquivos do mesmo tipo são somados. Só Chrome e Edge. Os dados não saem do seu PC.</p><button id="pick" class="go">Escolher pasta</button><div class="hint" id="dirName"></div></div>
  <div id="b_sheets" hidden><p class="hint">Em cada aba: Arquivo › Compartilhar › Publicar na Web › CSV. Cole os links.</p>
   <input type="text" id="u_products" placeholder="Link CSV de products" aria-label="Link CSV de products"><input type="text" id="u_inventory" placeholder="Link CSV de inventory" aria-label="Link CSV de inventory"><input type="text" id="u_orders" placeholder="Link CSV de orders" aria-label="Link CSV de orders"></div>
  <div id="b_up" hidden><input type="file" id="files" accept=".csv" multiple aria-label="Arquivos CSV"><p class="hint">Selecione todos os CSVs juntos. O tipo é detectado pelas colunas, não pelo nome.</p></div>
@@ -69,7 +69,7 @@ function build(t){const o={};for(const k in REQ){let rows=t[k].flatMap(x=>parse(
 async function get(u){const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status+' em '+u);return r.text()}
 async function load(){try{const s=$('#src').value;let tx=[];
 if(s=='sample'||s=='sheets')for(const k in REQ)tx.push([k,await get(s=='sample'?'data/sample/'+k+'.csv':$('#u_'+k).value.trim())]);
-else if(s=='dir'){for await(const h of dirH.values())if(h.kind=='file'&&/\.csv$/i.test(h.name))tx.push([h.name,await(await h.getFile()).text()])}else tx=up;
+else if(s=='dir'){if(!dirH)throw Error('Clique em "Escolher pasta" primeiro.');for await(const h of dirH.values())if(h.kind=='file'&&/\.csv$/i.test(h.name))tx.push([h.name,await(await h.getFile()).text()])}else tx=up;
 const t={products:[],inventory:[],orders:[]},skip=[];tx.forEach(([n,x])=>{const k=TYPE(x.split(/\r?\n/)[0].replace(/^\ufeff/,'').split(',').map(c=>c.trim()));k?t[k].push(x):skip.push(n)});
 for(const k in REQ)if(!t[k].length)throw Error('Nenhum CSV de '+k+' encontrado. Procuro pelas colunas: '+REQ[k].slice(0,2).join(', ')+'...');
 D=build(t);$('#err').textContent='';$('#info').textContent=(tx.length-skip.length)+' arquivo(s) lido(s)'+(skip.length?'. Ignorados: '+skip.join(', '):'');
@@ -109,11 +109,13 @@ const a=ALL.filter(r=>!q||(r.id+' '+r.name+' '+r.cat+' '+r.st).toLowerCase().inc
 const th=(k,t,n)=>`<th class="${n?'n':''}"><button data-sort="${k}" aria-label="Ordenar por ${t}">${t}${S.k==k?(S.d>0?' ▲':' ▼'):''}</button></th>`;
 $('#monT').innerHTML=ALL.length?`<p class="hint">${a.length} de ${ALL.length} itens. Clique no cabeçalho para ordenar e no produto para ver o detalhe.</p><div class="scr"><table><tr>${th('id','Código')}${th('name','Produto')}${th('cat','Categoria')}${th('qty','Saldo',1)}${th('ss','Segurança',1)}${th('rp','Reposição',1)}${th('cob','Cobertura (dias)',1)}${th('sev','Status')}${th('d','Posição em')}</tr>${a.map(r=>`<tr class="${F.prod==r.id?'sel':''}"><td>${esc(r.id)}</td><td><button data-prod="${r.id}" data-open>${esc(r.name)}</button></td><td>${esc(r.cat)}</td><td class="n"><b>${r.qty==null?'-':r.qty}</b></td><td class="n">${r.ss}</td><td class="n">${r.rp}</td><td class="n">${r.cob==null?'-':N(r.cob)}</td><td class="st ${r.st}">${r.st}</td><td>${esc(r.d||'-')}</td></tr>`).join('')||'<tr><td colspan="9" class="empty">Nenhum item encontrado.</td></tr>'}</table></div>`:''}
 function sched(){clearInterval(timer);const s=+$('#every').value;if(s&&$('#src').value!='up')timer=setInterval(load,s*1000)}
-$('#src').onchange=()=>{dirH=null;['dir','sheets','up'].forEach(k=>$('#b_'+k).hidden=$('#src').value!=k)};
+$('#src').onchange=()=>{dirH=null;$('#dirName').textContent='';['dir','sheets','up'].forEach(k=>$('#b_'+k).hidden=$('#src').value!=k)};
 $('#every').onchange=sched;
 $('#q').oninput=mon;
 $('#monT').onclick=e=>{const b=e.target.closest('[data-sort]');if(b){S.d=S.k==b.dataset.sort?-S.d:1;S.k=b.dataset.sort;mon()}};
 $('#files').onchange=async e=>{up=[];for(const f of e.target.files)up.push([f.name,await f.text()]);load()};
-$('#go').onclick=async()=>{if($('#src').value=='dir'&&!dirH){if(!window.showDirectoryPicker){$('#err').textContent='Este navegador não abre pastas. Use Chrome ou Edge, ou "Escolher CSVs".';return}try{dirH=await showDirectoryPicker()}catch{return}}sched();load()};
+async function pick(){if(!window.showDirectoryPicker){$('#err').textContent='Este navegador não abre pastas. Use Chrome ou Edge, ou "Escolher CSVs".';return false}try{dirH=await showDirectoryPicker();$('#dirName').textContent='Pasta: '+dirH.name;return true}catch(e){if(e.name!='AbortError')$('#err').textContent='Não consegui abrir a pasta ('+e.name+'). Escolha uma subpasta, não Downloads, Documentos ou Área de trabalho direto. Se continuar, a rede pode bloquear: use "Escolher CSVs".';return false}}
+$('#pick').onclick=async()=>{if(await pick()){sched();load()}};
+$('#go').onclick=async()=>{if($('#src').value=='dir'&&!dirH&&!await pick())return;sched();load()};
 load();
 </script></body></html>
