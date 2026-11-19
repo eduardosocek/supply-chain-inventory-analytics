@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Supply Chain & Inventory Analytics | SA</title>
+<style>
+:root{--navy:#0f172a;--ink:#1e293b;--mute:#64748b;--line:#e2e8f0;--bg:#f8fafc;--sky:#0ea5e9;--teal:#10b981;--amb:#d97706;--red:#dc2626}
+*{box-sizing:border-box}body{margin:0;font:14px/1.45 "Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink);font-variant-numeric:tabular-nums}
+header{background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;padding:20px 40px;display:flex;align-items:center;gap:15px;flex-wrap:wrap;box-shadow:0 4px 6px -1px rgba(0,0,0,.1)}
+.logo{background:var(--sky);font-weight:800;font-size:24px;padding:10px 16px;border-radius:8px;letter-spacing:1px}
+header h1{margin:0;font-size:18px}header small{color:#94a3b8;display:block;font-size:13px}#upd{margin-left:auto;color:#94a3b8;font-size:13px}
+.wrap{display:grid;grid-template-columns:240px 1fr;gap:20px;max-width:1280px;margin:20px auto;padding:0 16px}
+@media(max-width:800px){.wrap{grid-template-columns:1fr}}
+aside{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;align-self:start;display:grid;gap:10px}
+label{font-weight:600;font-size:13px}select,input[type=text],button{font:inherit}
+select,input[type=text]{width:100%;padding:6px;border:1px solid var(--line);border-radius:6px}
+.hint{color:var(--mute);font-size:12px;margin:0}.err{color:var(--red);font-size:13px;min-height:1em}
+button{cursor:pointer;border:1px solid var(--line);background:#fff;border-radius:6px;padding:6px 10px;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--sky);outline-offset:1px}
+.go{background:var(--navy);color:#fff;border-color:var(--navy)}
+.bar-f{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.bar-f button[aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-bottom:20px}
+.kpi{background:#fff;padding:16px 18px;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.05);border-left:4px solid var(--sky)}
+.kpi:nth-child(2){border-color:var(--teal)}.kpi:nth-child(3){border-color:var(--navy)}.kpi:nth-child(4){border-color:var(--amb)}.kpi:nth-child(5){border-color:#64748b}.kpi:nth-child(6){border-color:var(--red)}
+.kpi span{color:var(--mute);font-size:13px;display:block;text-transform:uppercase}.kpi b{font-size:24px;color:var(--navy)}
+footer{text-align:center;padding:20px;color:#94a3b8;font-size:12px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.tabs button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;padding:8px 14px}
+.tabs button[aria-selected=true]{border-color:var(--sky);font-weight:700}
+.cols{display:grid;grid-template-columns:2fr 1fr;gap:20px}@media(max-width:900px){.cols{grid-template-columns:1fr}}
+h2{font-size:14px;margin:0 0 8px}
+.row{display:grid;grid-template-columns:150px 1fr 100px;gap:8px;align-items:center;width:100%;text-align:left;border:0;padding:4px 2px;background:none}
+.row:hover{background:#eef6fb}.row.dim{opacity:.35}.row.on{background:#e0f2fe}
+.trk{background:var(--line);height:12px;border-radius:3px}.trk i{display:block;height:100%;border-radius:3px}
+.nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.v{text-align:right}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line)}
+th,td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:left}td.n,th.n{text-align:right}
+.st{font-weight:700}.CRÍTICO{color:var(--red)}.ATENÇÃO{color:var(--amb)}.OK{color:var(--teal)}
+.box{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:14px;overflow-x:auto}
+svg{width:100%;max-width:720px;height:auto}.empty{color:var(--mute);padding:20px 0}
+</style></head><body>
+<header><div class="logo">SA</div><div><h1>Supply Chain & Inventory Analytics</h1><small>Socek Analytics • Painel Executivo de Gestão de Estoque</small></div><div id="upd">Sem dados</div></header>
+<div class="wrap">
+<aside>
+ <label for="src">Fonte dos dados</label>
+ <select id="src"><option value="sample">Exemplo (data/sample)</option><option value="dir">Pasta do PC</option><option value="sheets">Google Sheets</option><option value="up">Escolher CSVs</option></select>
+ <div id="b_dir" hidden><p class="hint">Escolha a pasta com os CSVs. Nome livre; vários arquivos do mesmo tipo são somados. Só Chrome e Edge. Os dados não saem do seu PC.</p></div>
+ <div id="b_sheets" hidden><p class="hint">Em cada aba: Arquivo › Compartilhar › Publicar na Web › CSV. Cole os links.</p>
+  <input type="text" id="u_products" placeholder="Link CSV de products" aria-label="Link CSV de products"><input type="text" id="u_inventory" placeholder="Link CSV de inventory" aria-label="Link CSV de inventory"><input type="text" id="u_orders" placeholder="Link CSV de orders" aria-label="Link CSV de orders"></div>
+ <div id="b_up" hidden><input type="file" id="files" accept=".csv" multiple aria-label="Arquivos CSV"><p class="hint">Selecione todos os CSVs juntos. O tipo é detectado pelas colunas, não pelo nome.</p></div>
+ <label for="every">Atualizar</label>
+ <select id="every"><option value="0">Só manual</option><option value="10">A cada 10 s</option><option value="30">A cada 30 s</option><option value="60">A cada 60 s</option></select>
+ <button class="go" id="go">Carregar dados</button><div class="err" id="err" role="alert"></div><div class="hint" id="info"></div>
+</aside>
+<main><div id="view"><p class="empty">Clique em "Carregar dados".</p></div></main>
+</div>
+<footer>Desenvolvido por Socek Analytics (SA)</footer>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const R=n=>'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}),N=n=>n.toLocaleString('pt-BR',{maximumFractionDigits:1});
+const REQ={products:['product_id','product_name','category','unit_price','reorder_point','safety_stock'],inventory:['snapshot_date','product_id','quantity_on_hand'],orders:['order_id','product_id','quantity_ordered','order_status','shipping_days']};
+const NUM=['unit_cost','unit_price','reorder_point','safety_stock','quantity_on_hand','quantity_ordered','shipping_days'],COR={A:'#0f172a',B:'#0ea5e9',C:'#10b981'};
+let D=null,F={},tab='geral',timer,dirH,up=[];
+const TYPE=h=>h.includes('snapshot_date')?'inventory':h.includes('order_id')?'orders':h.includes('product_name')?'products':null,KEY={products:r=>r.product_id,inventory:r=>r.snapshot_date+'|'+r.product_id,orders:r=>r.order_id};
+function parse(t){const rows=[];let r=[],c='',q=false;for(let i=0;i<t.length;i++){const ch=t[i];if(q){if(ch=='"'){if(t[i+1]=='"'){c+='"';i++}else q=false}else c+=ch}else if(ch=='"')q=true;else if(ch==','){r.push(c);c=''}else if(ch=='\n'||ch=='\r'){if(ch=='\r'&&t[i+1]=='\n')i++;r.push(c);c='';if(r.length>1||r[0]!=='')rows.push(r);r=[]}else c+=ch}if(c||r.length){r.push(c);rows.push(r)}const h=rows.shift().map(x=>x.trim());return rows.map(a=>Object.fromEntries(h.map((k,i)=>[k,(a[i]||'').trim()])))}
+function build(t){const o={};for(const k in REQ){let rows=t[k].flatMap(x=>parse(x.replace(/^\ufeff/,'')));rows.forEach(r=>NUM.forEach(n=>{if(n in r)r[n]=+r[n]}));const miss=REQ[k].filter(c=>!(rows[0]&&c in rows[0]));if(miss.length)throw Error(k+' sem a coluna '+miss.join(', '));o[k]=[...new Map(rows.map(r=>[KEY[k](r),r])).values()]}return o}
+async function get(u){const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status+' em '+u);return r.text()}
+async function load(){try{const s=$('#src').value;let tx=[];
+if(s=='sample'||s=='sheets')for(const k in REQ)tx.push([k,await get(s=='sample'?'data/sample/'+k+'.csv':$('#u_'+k).value.trim())]);
+else if(s=='dir'){for await(const h of dirH.values())if(h.kind=='file'&&/\.csv$/i.test(h.name))tx.push([h.name,await(await h.getFile()).text()])}else tx=up;
+const t={products:[],inventory:[],orders:[]},skip=[];tx.forEach(([n,x])=>{const k=TYPE(x.split(/\r?\n/)[0].replace(/^\ufeff/,'').split(',').map(c=>c.trim()));k?t[k].push(x):skip.push(n)});
+for(const k in REQ)if(!t[k].length)throw Error('Nenhum CSV de '+k+' encontrado. Procuro pelas colunas: '+REQ[k].slice(0,2).join(', ')+'...');
+D=build(t);$('#err').textContent='';$('#info').textContent=(tx.length-skip.length)+' arquivo(s) lido(s)'+(skip.length?'. Ignorados: '+skip.join(', '):'');
+$('#upd').innerHTML='Status: <b style="color:#10b981">● Atualizado às '+new Date().toLocaleTimeString('pt-BR')+'</b>';draw()}catch(e){$('#err').textContent='Erro: '+e.message}}
+function calc(){const ok=o=>o.order_status=='Shipped'||o.order_status=='Delivered',by={},ds=D.orders.map(o=>o.order_date).filter(Boolean).sort(),days=ds.length?Math.max(1,Math.round((new Date(ds[ds.length-1])-new Date(ds[0]))/864e5)+1):1;
+D.products.forEach(p=>by[p.product_id]={id:p.product_id,name:p.product_name,cat:p.category,pr:p.unit_price,rp:p.reorder_point,ss:p.safety_stock,rev:0,un:0,qty:null,d:'',cost:p.unit_cost||0});
+D.orders.filter(ok).forEach(o=>{const r=by[o.product_id];if(r){r.un+=o.quantity_ordered;r.rev+=o.quantity_ordered*r.pr}});
+D.inventory.forEach(i=>{const r=by[i.product_id];if(r&&i.snapshot_date>=r.d){r.d=i.snapshot_date;r.qty=i.quantity_on_hand}});
+const rows=Object.values(by).sort((a,b)=>b.rev-a.rev),tot=rows.reduce((s,r)=>s+r.rev,0)||1;let c=0;
+rows.forEach(r=>{r.mg=r.rev-r.un*r.cost;const p=c/tot*100;r.cls=p<70?'A':p<90?'B':'C';c+=r.rev;r.cob=r.qty!=null&&r.un>0?r.qty/(r.un/days):null;r.st=r.qty==null?'OK':r.qty<=r.ss?'CRÍTICO':r.qty<=r.rp?'ATENÇÃO':'OK'});return rows}
+function line(r){const h=D.inventory.filter(i=>i.product_id==r.id).sort((a,b)=>a.snapshot_date<b.snapshot_date?-1:1);if(!h.length)return'<p class="empty">Sem histórico de estoque.</p>';
+const W=640,H=220,m=34,mx=Math.max(r.rp,r.ss,...h.map(i=>i.quantity_on_hand),1),x=i=>m+i*(W-m-8)/Math.max(h.length-1,1),y=v=>H-24-v*(H-40)/mx;
+const ln=(v,c,t)=>`<line x1="${m}" x2="${W-8}" y1="${y(v)}" y2="${y(v)}" stroke="${c}" stroke-dasharray="5 4"/><text x="${W-10}" y="${y(v)-4}" text-anchor="end" fill="${c}" font-size="11">${t} ${v}</text>`;
+return`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Estoque diário de ${esc(r.name)}"><text x="2" y="14" font-size="11" fill="#64748b">${mx}</text><text x="2" y="${H-24}" font-size="11" fill="#64748b">0</text>${ln(r.rp,'#d97706','reposição')}${ln(r.ss,'#dc2626','segurança')}<polyline points="${h.map((i,k)=>x(k)+','+y(i.quantity_on_hand)).join(' ')}" fill="none" stroke="#0ea5e9" stroke-width="2"/>${h.map((i,k)=>`<circle cx="${x(k)}" cy="${y(i.quantity_on_hand)}" r="2.5" fill="#0ea5e9"><title>${i.snapshot_date}: ${i.quantity_on_hand}</title></circle>`).join('')}<text x="${m}" y="${H-6}" font-size="11" fill="#64748b">${h[0].snapshot_date}</text><text x="${W-8}" y="${H-6}" text-anchor="end" font-size="11" fill="#64748b">${h[h.length-1].snapshot_date}</text></svg>`}
+function abc(base){const n=base.length;if(!n)return'<p class="empty">Nada neste filtro.</p>';const W=720,H=330,l=50,b=100,t=14,mx=Math.max(...base.map(r=>r.rev),1),tot=base.reduce((s,r)=>s+r.rev,0)||1,bw=(W-l-10)/n,y=v=>t+(H-t-b)*(1-v/mx),yp=p=>t+(H-t-b)*(1-p/100);let c=0;const pts=[];
+const bars=base.map((r,i)=>{c+=r.rev;const x=l+i*bw;pts.push((x+bw/2)+','+yp(c/tot*100));return`<g data-prod="${r.id}" style="cursor:pointer;opacity:${F.prod&&F.prod!=r.id?.35:1}"><title>${esc(r.name)}: ${R(r.rev)} (Classe ${r.cls})</title><rect x="${x+3}" y="${y(r.rev)}" width="${Math.max(bw-6,2)}" height="${H-b-y(r.rev)}" fill="${COR[r.cls]}"/><text transform="translate(${x+bw/2},${H-b+12}) rotate(40)" font-size="11" fill="#334155">${esc(r.name.slice(0,20))}</text></g>`}).join('');
+return`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Curva ABC de faturamento">${[0,.5,1].map(f=>`<text x="${l-4}" y="${y(mx*f)+4}" font-size="11" text-anchor="end" fill="#64748b">${N(mx*f/1000)} mil</text>`).join('')}${[70,90].map(p=>`<line x1="${l}" x2="${W-10}" y1="${yp(p)}" y2="${yp(p)}" stroke="#94a3b8" stroke-dasharray="4 4"/><text x="${W-12}" y="${yp(p)-3}" font-size="10" text-anchor="end" fill="#64748b">${p}%</text>`).join('')}${bars}<polyline points="${pts.join(' ')}" fill="none" stroke="#d97706" stroke-width="2" pointer-events="none"/></svg>`}
+function draw(){if(!D)return;const all=calc(),base=all.filter(r=>(!F.cls||r.cls==F.cls)&&(!F.cat||r.cat==F.cat)),sel=F.prod?base.filter(r=>r.id==F.prod):base,ids=new Set(sel.map(r=>r.id)),
+ords=D.orders.filter(o=>ids.has(o.product_id)),sh=ords.filter(o=>o.order_status=='Shipped'||o.order_status=='Delivered'),canc=ords.filter(o=>o.order_status=='Cancelled').length,
+sum=(a,f)=>a.reduce((s,r)=>s+f(r),0),prazo=sh.length?sum(sh,o=>o.shipping_days)/sh.length:0,rv=sum(sel,r=>r.rev),crit=sel.filter(r=>r.st=='CRÍTICO').length,warn=sel.filter(r=>r.st=='ATENÇÃO').length;
+const cnt=k=>all.filter(r=>(!F.cat||r.cat==F.cat)&&r.cls==k).length,pr=F.prod&&all.find(r=>r.id==F.prod);
+let h=`<div class="bar-f">${['A','B','C'].map(k=>`<button data-cls="${k}" aria-pressed="${F.cls==k}">Classe ${k} (${cnt(k)})</button>`).join('')}${F.cat?`<button aria-pressed="true" data-cat="${esc(F.cat)}">${esc(F.cat)} ✕</button>`:''}${pr?`<button aria-pressed="true" data-prod="${pr.id}">${esc(pr.name)} ✕</button><button data-prod="${pr.id}" data-open>Abrir detalhe</button>`:''}${F.cls||F.cat||F.prod?'<button data-clear>Limpar filtros</button>':''}</div>
+<div class="kpis"><div class="kpi"><span>Faturamento total</span><b>${R(rv)}</b></div><div class="kpi"><span>Peças vendidas</span><b>${N(sum(sel,r=>r.un))} un</b></div><div class="kpi"><span>Produtos Classe A</span><b>${sel.filter(r=>r.cls=='A').length} itens</b></div><div class="kpi"><span>Margem bruta</span><b>${rv?N(sum(sel,r=>r.mg)/rv*100):0}%</b></div><div class="kpi"><span>Prazo médio de envio</span><b>${N(prazo)} dias</b></div><div class="kpi"><span>Estoque crítico / atenção</span><b>${crit} / ${warn}</b></div></div>
+<div class="tabs" role="tablist">${[['geral','Visão geral'],['alertas','Alertas de estoque'],['produto','Produto']].map(t=>`<button role="tab" data-tab="${t[0]}" aria-selected="${tab==t[0]}">${t[1]}</button>`).join('')}</div>`;
+if(tab=='geral'){const mx=Math.max(...base.map(r=>r.rev),1),cats={};all.filter(r=>!F.cls||r.cls==F.cls).forEach(r=>cats[r.cat]=(cats[r.cat]||0)+r.rev);const cm=Math.max(...Object.values(cats),1),stt={};ords.forEach(o=>stt[o.order_status]=(stt[o.order_status]||0)+1);
+h+=`<div class="cols"><div class="box"><h2>Curva ABC de faturamento por produto</h2><p class="hint">Clique numa barra para filtrar. Barras: Classe A (azul escuro), B (azul), C (verde). Linha laranja: % acumulado.</p>${abc(base)}</div>
+<div><div class="box"><h2>Por categoria</h2>${Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<button class="row ${F.cat&&F.cat!=c?'dim':''}" style="grid-template-columns:90px 1fr 80px" data-cat="${esc(c)}"><span class="nm">${esc(c)}</span><span class="trk"><i style="width:${v/cm*100}%;background:#0ea5e9"></i></span><span class="v">${N(v/1000)} mil</span></button>`).join('')}</div>
+<div class="box"><h2>Status dos pedidos</h2>${Object.entries(stt).map(([k,v])=>`<div style="display:flex;justify-content:space-between"><span>${esc(k)}</span><b>${v}</b></div>`).join('')||'<p class="empty">Sem pedidos.</p>'}</div></div></div>`}
+else if(tab=='alertas'){const a=base.filter(r=>r.st!='OK').sort((x,y)=>x.qty-y.qty);h+=a.length?`<table><tr><th>Status</th><th>Produto</th><th class="n">Em mão</th><th class="n">Segurança</th><th class="n">Reposição</th><th class="n">Cobertura (dias)</th></tr>${a.map(r=>`<tr><td class="st ${r.st}">${r.st}</td><td><button data-prod="${r.id}" data-open>${esc(r.name)}</button></td><td class="n">${r.qty}</td><td class="n">${r.ss}</td><td class="n">${r.rp}</td><td class="n">${r.cob==null?"-":N(r.cob)}</td></tr>`).join('')}</table><p class="hint">Posição em ${esc(a[0].d)}. Cobertura = estoque ÷ venda média diária. Clique no produto para ver o detalhe.</p>`:'<p class="empty">Nenhum produto em alerta neste filtro.</p>'}
+else if(!pr)h+='<p class="empty">Escolha um produto na Visão geral ou nos Alertas.</p>';
+else{const o=D.orders.filter(x=>x.product_id==pr.id).sort((a,b)=>a.order_date<b.order_date?1:-1);h+=`<div class="box"><h2>${esc(pr.name)} · ${esc(pr.id)} · ${esc(pr.cat)} · Classe ${pr.cls} · <span class="st ${pr.st}">${pr.st}</span> · Margem ${N(pr.rev?pr.mg/pr.rev*100:0)}% · Cobertura ${pr.cob==null?"-":N(pr.cob)+" dias"}</h2>${line(pr)}</div><div class="box"><h2>Pedidos (${o.length})</h2><table><tr><th>Pedido</th><th>Data</th><th class="n">Qtd</th><th>Status</th><th class="n">Dias de envio</th></tr>${o.map(x=>`<tr><td>${esc(x.order_id)}</td><td>${esc(x.order_date)}</td><td class="n">${x.quantity_ordered}</td><td>${esc(x.order_status)}</td><td class="n">${x.shipping_days}</td></tr>`).join('')}</table></div>`}
+$('#view').innerHTML=h}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-cls],[data-cat],[data-prod],[data-tab],[data-clear]');if(!b)return;const d=b.dataset;
+if('cls'in d)F.cls=F.cls==d.cls?null:d.cls;else if('cat'in d)F.cat=F.cat==d.cat?null:d.cat;else if('prod'in d){if('open'in d){F.prod=d.prod;tab='produto'}else F.prod=F.prod==d.prod?null:d.prod}else if('tab'in d)tab=d.tab;else F={};draw()});
+function sched(){clearInterval(timer);const s=+$('#every').value;if(s&&$('#src').value!='up')timer=setInterval(load,s*1000)}
+$('#src').onchange=()=>{dirH=null;['dir','sheets','up'].forEach(k=>$('#b_'+k).hidden=$('#src').value!=k)};
+$('#every').onchange=sched;
+$('#files').onchange=async e=>{up=[];for(const f of e.target.files)up.push([f.name,await f.text()]);load()};
+$('#go').onclick=async()=>{if($('#src').value=='dir'&&!dirH){if(!window.showDirectoryPicker){$('#err').textContent='Este navegador não abre pastas. Use Chrome ou Edge, ou "Escolher CSVs".';return}try{dirH=await showDirectoryPicker()}catch{return}}sched();load()};
+load();
+</script></body></html>
